@@ -1,0 +1,11 @@
+@Matilda.WebApi_HostAddress = http://localhost:5167
+
+### Get chat responses
+
+POST {{Matilda.WebApi_HostAddress}}/api/chat/
+Content-Type: application/json
+
+{
+  "Input": "Hello, how are you?"
+}
+
