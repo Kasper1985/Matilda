@@ -5,5 +5,5 @@ namespace Matilda.WebApi.Models;
 
 public class Ask
 {
-    [Required, NotEmptyOrWhitespace] public string Input { get; init; } = string.Empty;
+    [Required, NotEmptyOrWhitespace] public string Content { get; init; } = string.Empty;
 }

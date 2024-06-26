@@ -12,7 +12,8 @@ builder.AddConfigurations()
 // Add configuration options and required services.
 builder.Services
     .AddSingleton<ILogger>(sp => sp.GetRequiredService<ILogger<Program>>())
-    .AddOptions(builder.Configuration);
+    .AddOptions(builder.Configuration)
+    .AddChatStore();
 
 // Configure and add semantic services.
 builder.AddSemanticKernelServices();

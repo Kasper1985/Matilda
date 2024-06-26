@@ -1,4 +1,7 @@
+using Matilda.WebApi.Models;
 using Matilda.WebApi.Options;
+using Matilda.WebApi.Storage;
+using Microsoft.Extensions.Options;
 
 namespace Matilda.WebApi.Extensions;
 
@@ -11,6 +14,9 @@ public static class ServiceExtensions
         
         // Add options with semantic kernel configuration
         AddOptions<SemanticKernelOptions>(SemanticKernelOptions.SectionName);
+        
+        // Add options with chat storage configuration
+        AddOptions<ChatStoreOptions>(ChatStoreOptions.SectionName);
         
         return services;
         
@@ -39,6 +45,35 @@ public static class ServiceExtensions
         return services;
     }
 
+    public static IServiceCollection AddChatStore(this IServiceCollection services)
+    {
+        var chatStoreOptions = services.BuildServiceProvider().GetRequiredService<IOptions<ChatStoreOptions>>().Value;
+
+        switch (chatStoreOptions.Type)
+        {
+            case {} t when t.Equals("InMemory", StringComparison.OrdinalIgnoreCase):
+                services.AddSingleton(new Repository<ChatMessage>(new InMemoryContext<ChatMessage>()));
+                break;
+            
+            case {} t when t.Equals("Filesystem", StringComparison.OrdinalIgnoreCase):
+                var fullPath = Path.GetFullPath(chatStoreOptions.Filesystem!.FilePath);
+                var directory = Path.GetDirectoryName(fullPath) ?? string.Empty;
+                var fileInfo = new FileInfo(Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(fullPath)}.messages{Path.GetExtension(fullPath)}"));
+                services.AddSingleton(new Repository<ChatMessage>(new FileSystemContext<ChatMessage>(fileInfo)));
+                break;
+            
+            case {} t when t.Equals("MongoDB", StringComparison.OrdinalIgnoreCase):
+                var mongoDbContext = new MongoDbContext<ChatMessage>(chatStoreOptions.MongoDb!.ConnectionString, chatStoreOptions.MongoDb!.DatabaseName);
+                services.AddSingleton(new Repository<ChatMessage>(mongoDbContext));
+                break;
+            
+            default:
+                throw new ArgumentOutOfRangeException($"Invalid chat store type: {chatStoreOptions.Type}");
+        }
+
+        return services;
+    }
+    
     private static void AddOptions<TOptions>(this IServiceCollection services, IConfigurationSection section) where TOptions : class
     {
         services.AddOptions<TOptions>()

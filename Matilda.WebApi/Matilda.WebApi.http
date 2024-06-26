@@ -1,11 +1,28 @@
 @Matilda.WebApi_HostAddress = http://localhost:5167
 
-### Get chat responses
+### Turn on the light
 
 POST {{Matilda.WebApi_HostAddress}}/api/chat/
 Content-Type: application/json
 
 {
-  "Input": "Hello, how are you?"
+  "Content": "Hello, can you turn on the light?"
 }
 
+### Get the current status of the light
+
+POST {{Matilda.WebApi_HostAddress}}/api/chat/
+Content-Type: application/json
+
+{
+  "Content": "Is the light now on??"
+}
+
+### Turn off the light
+
+POST {{Matilda.WebApi_HostAddress}}/api/chat/
+Content-Type: application/json
+
+{
+  "Content": "Switch the light off?"
+}
