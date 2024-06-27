@@ -1,0 +1,32 @@
+{
+  "name": "matilda-ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main/main.js",
+  "author": "Yuriy Varshavskyy",
+  "description": "UI for Matilda AI",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n \"NEXT,ELECTRON\" -c \"yellow,blue\" --kill-others \"next dev\" \"electron .\"",
+    "build": "next build && electron-builder",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "electron-serve": "^2.0.0",
+    "next": "14.2.4",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "concurrently": "^8.2.2",
+    "electron": "^31.1.0",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.4",
+    "typescript": "^5"
+  }
+}

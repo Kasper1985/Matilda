@@ -1,0 +1,12 @@
+appId: "Matilda.UI"
+productName: "Matilda"
+copyright: "Copyright (c) 2024 Yuriy Varshavskyy"
+win:
+  target: ["dir", "portable", "zip"]
+  icon: "resources/icon.ico"
+linux:
+  target: ["dir", "appimage", "zip"]
+  icon: "resources/icon.png"
+mac:
+  target: ["dir", "dmg", "zip"]
+  icon: "resources/icon.icns"
