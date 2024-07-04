@@ -29,10 +29,10 @@ public class InMemoryContext<T> : IStorageContext<T> where T : IStorageEntity
     public Task<IEnumerable<T>> QueryEntities(Expression<Func<T, bool>> predicate) => Task.FromResult(_entities.Values.Where(e => predicate.Compile().Invoke(e)));
     
     /// <inheritdoc/>
-    public Task<T> Read(string entityId)
+    public Task<T?> Read(string entityId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(entityId, nameof(entityId));
-        return _entities.TryGetValue(entityId, out var entity) ? Task.FromResult(entity) : throw new KeyNotFoundException($"Entity with ID '{entityId}' not found.");
+        return (_entities.TryGetValue(entityId, out var entity) ? Task.FromResult(entity) : null)!;
     }
     
     /// <inheritdoc/>

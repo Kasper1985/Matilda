@@ -53,18 +53,26 @@ public static class ServiceExtensions
         {
             case {} t when t.Equals("InMemory", StringComparison.OrdinalIgnoreCase):
                 services.AddSingleton(new Repository<ChatMessage>(new InMemoryContext<ChatMessage>()));
+                services.AddSingleton(new Repository<Chat>(new InMemoryContext<Chat>()));
                 break;
             
             case {} t when t.Equals("Filesystem", StringComparison.OrdinalIgnoreCase):
                 var fullPath = Path.GetFullPath(chatStoreOptions.Filesystem!.FilePath);
                 var directory = Path.GetDirectoryName(fullPath) ?? string.Empty;
-                var fileInfo = new FileInfo(Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(fullPath)}.messages{Path.GetExtension(fullPath)}"));
-                services.AddSingleton(new Repository<ChatMessage>(new FileSystemContext<ChatMessage>(fileInfo)));
+                
+                var fileInfoMessages = new FileInfo(Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(fullPath)}.messages{Path.GetExtension(fullPath)}"));
+                var fileInfoChats = new FileInfo(Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(fullPath)}.chats{Path.GetExtension(fullPath)}"));
+                
+                services.AddSingleton(new Repository<ChatMessage>(new FileSystemContext<ChatMessage>(fileInfoMessages)));
+                services.AddSingleton(new Repository<Chat>(new FileSystemContext<Chat>(fileInfoChats)));
                 break;
             
             case {} t when t.Equals("MongoDB", StringComparison.OrdinalIgnoreCase):
-                var mongoDbContext = new MongoDbContext<ChatMessage>(chatStoreOptions.MongoDb!.ConnectionString, chatStoreOptions.MongoDb!.DatabaseName);
-                services.AddSingleton(new Repository<ChatMessage>(mongoDbContext));
+                var chatMessageContext = new MongoDbContext<ChatMessage>(chatStoreOptions.MongoDb!.ConnectionString, chatStoreOptions.MongoDb!.DatabaseName);
+                var chatContext = new MongoDbContext<Chat>(chatStoreOptions.MongoDb!.ConnectionString, chatStoreOptions.MongoDb!.DatabaseName);
+                
+                services.AddSingleton(new Repository<ChatMessage>(chatMessageContext));
+                services.AddSingleton(new Repository<Chat>(chatContext));
                 break;
             
             default:

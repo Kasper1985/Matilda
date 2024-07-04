@@ -1,0 +1,22 @@
+appId: 'com.varshavskyy.matilda'
+productName: 'Matilda'
+
+directories:
+  output: ./publish
+  buildResources: 'assets'
+files:
+  - from: ./dist
+    to: .
+    filter:
+      - '**/*'
+  - filter:
+    - ./electron/**/*
+    - '!./electron/electron-builder.yaml'
+    - package.json
+compression: normal
+
+win:
+  artifactName: '${productName}-setup-${version}.${ext}'
+  icon: ./src/assets/icon.ico
+  target:
+    - target: nsis

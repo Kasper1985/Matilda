@@ -24,7 +24,7 @@ public class MongoDbContext<T> : IStorageContext<T> where T : IStorageEntity
         return await _collection.Find(predicate).ToListAsync();
     }
 
-    public async Task<T> Read(string entityId)
+    public async Task<T?> Read(string entityId)
     {
         ArgumentNullException.ThrowIfNull(_collection);
         ArgumentException.ThrowIfNullOrWhiteSpace(entityId);

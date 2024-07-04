@@ -15,6 +15,12 @@ public class ChatMessage : IStorageEntity
     public string Id { get; set; } = string.Empty;
     
     /// <summary>
+    /// ID of the chat.
+    /// </summary>
+    [BsonRepresentation(BsonType.String)]
+    public string ChatId { get; set; } = string.Empty;
+    
+    /// <summary>
     /// Role of the author of a chat message.
     /// </summary>
     public AuthorRole Role { get; set; }

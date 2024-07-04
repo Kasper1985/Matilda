@@ -20,7 +20,7 @@ public interface IStorageContext<T> where T : IStorageEntity
     /// </summary>
     /// <param name="entityId">The entity id.</param>
     /// <returns>The entity with provided ID.</returns>
-    Task<T> Read(string entityId);
+    Task<T?> Read(string entityId);
 
     /// <summary>
     /// Create an entity in the storage context.

@@ -32,7 +32,7 @@ public interface IRepository<T> where T : IStorageEntity
     /// </summary>
     /// <param name="id">ID of the entity.</param>
     /// <returns>An entity</returns>
-    Task<T> FindById(string id);
+    Task<T?> FindById(string id);
 
     /// <summary>
     /// Tries to find an entity by its id.

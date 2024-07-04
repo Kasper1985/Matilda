@@ -16,7 +16,7 @@ public class Repository<T>(IStorageContext<T> storageContext) : IRepository<T> w
     public Task<bool> Delete(T entity) => storageContext.Delete(entity);
 
     /// <inheritdoc/>
-    public Task<T> FindById(string id) => storageContext.Read(id);
+    public Task<T?> FindById(string id) => storageContext.Read(id);
 
     /// <inheritdoc/>
     public async Task<bool> TryFindById(string id, Action<T?>? callback = null)
