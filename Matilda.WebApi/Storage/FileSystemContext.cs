@@ -70,7 +70,21 @@ public class FileSystemContext<T> : IStorageContext<T> where T : IStorageEntity
             Save(_entities, _fileStorage);
             return Task.FromResult(true);
         }
-        throw new Exception("Could not delete the entity from disk.");
+
+        return Task.FromResult(false);
+    }
+    
+    /// <inheritdoc/>
+    public Task<bool> DeleteByCondition(Expression<Func<T, bool>> predicate)
+    {
+        var entitiesToRemove = _entities.Values.Where(e => predicate.Compile().Invoke(e)).ToList();
+        if (entitiesToRemove.All(entity => _entities.TryRemove(entity.Id, out _)))
+        {
+            Save(_entities, _fileStorage);
+            return Task.FromResult(true);
+        }
+        
+        return Task.FromResult(false);
     }
 
     /// <inheritdoc/>

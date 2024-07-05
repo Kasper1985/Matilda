@@ -42,4 +42,11 @@ public interface IStorageContext<T> where T : IStorageEntity
     /// <param name="entity">The entity to be deleted from the context.</param>
     /// <returns>True if operation was successful, otherwise - false.</returns>
     Task<bool> Delete(T entity);
+    
+    /// <summary>
+    /// Delete entities from the storage context by condition.
+    /// </summary>
+    /// <param name="predicate">Predicate that needs to evaluate to true for a particular entry to be deleted.</param>
+    /// <returns>True if operation was successful, otherwise - false.</returns>
+    Task<bool> DeleteByCondition(Expression<Func<T, bool>> predicate);
 }

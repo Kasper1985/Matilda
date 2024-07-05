@@ -48,6 +48,13 @@ public class InMemoryContext<T> : IStorageContext<T> where T : IStorageEntity
         ArgumentException.ThrowIfNullOrWhiteSpace(entity.Id, nameof(entity.Id));
         return Task.FromResult(_entities.TryRemove(entity.Id, out _));
     }
+    
+    /// <inheritdoc/>
+    public Task<bool> DeleteByCondition(Expression<Func<T, bool>> predicate)
+    {
+        var entitiesToRemove = _entities.Values.Where(e => predicate.Compile().Invoke(e)).ToList();
+        return Task.FromResult(entitiesToRemove.All(entity => _entities.TryRemove(entity.Id, out _)));
+    }
 
     /// <inheritdoc/>
     public Task<bool> Upsert(T entity)

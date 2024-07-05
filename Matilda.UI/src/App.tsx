@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import Navigation from './components/Navigation';
+import Chat from './components/Chat';
 //import DarkModeIconButton from '@mui/icons-material/DarkMode';
 //import LightModeIconButton from '@mui/icons-material/LightMode';
-import Chat from './components/Chat';
 import './App.css';
 
 const useStyles = makeStyles()(() => ({

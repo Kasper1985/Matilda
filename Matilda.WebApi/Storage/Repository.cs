@@ -14,6 +14,8 @@ public class Repository<T>(IStorageContext<T> storageContext) : IRepository<T> w
 
     /// <inheritdoc/>
     public Task<bool> Delete(T entity) => storageContext.Delete(entity);
+    
+    public Task<bool> DeleteByCondition(Expression<Func<T, bool>> predicate) => storageContext.DeleteByCondition(predicate);
 
     /// <inheritdoc/>
     public Task<T?> FindById(string id) => storageContext.Read(id);

@@ -45,11 +45,29 @@ public class ChatController(ILogger<ChatController> logger, IOptions<PromptsOpti
     [HttpPost("{title}")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Chat))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> NewChat([FromServices] Repository<Chat> chatRepository, [FromRoute]string title)
+    public async Task<IActionResult> NewChat(
+        [FromServices] Repository<Chat> chatRepository,
+        [FromServices] Repository<ChatMessage> chatMessageRepository,
+        [FromRoute] string title)
     {
         logger.LogDebug("New chat created.");
         
         var chat = await chatRepository.Create(new Chat { Title = title, TimeStamp = DateTimeOffset.Now });
+        
+        await chatMessageRepository.Create(new ChatMessage
+        {
+            ChatId = chat.Id,
+            Role = AuthorRole.System,
+            Content = promptOptions.Value.SystemDescription,
+            TimeStamp = DateTimeOffset.Now
+        });
+        await chatMessageRepository.Create(new ChatMessage
+        {
+            ChatId = chat.Id,
+            Role = AuthorRole.Assistant,
+            Content = promptOptions.Value.InitialMessage,
+            TimeStamp = DateTimeOffset.Now
+        });
 
         return CreatedAtAction(nameof(Chat), new { id = Guid.Parse(chat.Id) }, chat);
     }
@@ -58,14 +76,19 @@ public class ChatController(ILogger<ChatController> logger, IOptions<PromptsOpti
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteChat([FromServices] Repository<Chat> chatRepository, [FromRoute] Guid id)
+    public async Task<IActionResult> DeleteChat(
+        [FromServices] Repository<Chat> chatRepository,
+        [FromServices] Repository<ChatMessage> chatMessageRepository,
+        [FromRoute] Guid id)
     {
         logger.LogDebug("Chat history deleted.");
         var chat = await chatRepository.FindById(id.ToString());
         if (chat is null)
             return NotFound();
         
-        var result = await chatRepository.Delete(new Chat { Id = id.ToString() });
+        var result = await chatMessageRepository.DeleteByCondition(m => m.ChatId == id.ToString());
+        if (result)
+            result = await chatRepository.Delete(new Chat { Id = id.ToString() });
 
         return result ? NoContent() : NotFound();
     }
@@ -111,7 +134,7 @@ public class ChatController(ILogger<ChatController> logger, IOptions<PromptsOpti
         {
             var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
             var chatHistory = await GetChatHistory(id.ToString(), chatMessageRepository);
-            var requestMsg = await AddMessageToChatHistory(chatHistory, chatMessageRepository, new ChatMessage
+            await AddMessageToChatHistory(chatHistory, chatMessageRepository, new ChatMessage
             {
                 ChatId = id.ToString(),
                 Role = AuthorRole.User,
@@ -150,24 +173,6 @@ public class ChatController(ILogger<ChatController> logger, IOptions<PromptsOpti
         var chatHistory = new ChatHistory();
         foreach (var message in await repository.Find(m => m.ChatId == id))
             chatHistory.AddMessage(message.Role, message.Content);
-
-        if (chatHistory.Count < 1)
-        {
-            await AddMessageToChatHistory(chatHistory, repository, new ChatMessage
-            {
-                ChatId = id,
-                Role = AuthorRole.System,
-                Content = promptOptions.Value.SystemDescription,
-                TimeStamp = DateTimeOffset.Now
-            });
-            await AddMessageToChatHistory(chatHistory, repository, new ChatMessage
-            {
-                ChatId = id,
-                Role = AuthorRole.Assistant,
-                Content = promptOptions.Value.InitialMessage,
-                TimeStamp = DateTimeOffset.Now
-            });
-        }
 
         return chatHistory;
     }

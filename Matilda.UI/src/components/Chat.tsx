@@ -1,86 +1,58 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { makeStyles } from 'tss-react/mui';
+import { chatStyles } from './styles/Chat.styles.ts';
 import { Box, IconButton, TextField } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
 import { ChatMessage } from '../../api/models';
 import { ApiUrls } from '../../api/apiUrls';
-
-const useStyles = makeStyles()(() => ({
-    main: {
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        gap: '10px',
-    },
-    chatHistory: {
-        backgroundColor: '#444',
-        borderRadius: '10px',
-        padding: '10px 0 10px 0',
-        overflowY: 'auto',
-        flexGrow: 1,
-        display: 'flex',
-        flexDirection: 'column',
-    },
-    chatHistoryMessageAssistant:{
-        backgroundColor: '#1dc2af',
-        color: 'white',
-        borderRadius: '10px 10px 10px 0',
-        padding: '10px',
-        margin: '0 0 20px 15px',
-        maxWidth: '80%',
-        alignSelf: 'flex-start',
-    },
-    chatHistoryMessageUser: {
-        backgroundColor: '#6c6c6c',
-        color: 'white',
-        borderRadius: '10px 10px 0 10px',
-        padding: '10px',
-        margin: '0 15px 20px 0',
-        maxWidth: '80%',
-        alignSelf: 'flex-end',
-    },
-    chatHistoryMessageTime: {
-        fontSize: '8pt',
-        opacity: '0.5',
-        marginTop: '-20px',
-    },
-    chatHistoryMessageTimeAssistant: {
-        marginLeft: '15px',
-    },
-    chatHistoryMessageTimeUser: {
-        marginRight: '15px',
-        alignSelf: 'flex-end',
-    },
-    chatInput: {
-        minHeight: '70px',
-        backgroundColor: '#444',
-        borderRadius: '10px',
-        display: 'flex',
-        alignItems: 'center',
-        paddingLeft: '10px',
-    },
-    chatMessage: {
-        textarea: {
-            color: 'white'
-        }
-    }
-}));
+import SendIcon from '@mui/icons-material/Send';
 
 interface ChatProps {
     chatId: string;
 }
 
 function Chat({ chatId }: ChatProps) {
-    const { classes } = useStyles();
+    const { classes } = chatStyles();
     const bottomOfChatRef = useRef<HTMLDivElement>(null);
-
+    const [answer, setAnswer] = useState<ChatMessage>(); 
+    const [text, setText] = useState<string>('');
+    
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [message, setMessage] = useState<string>('');
 
-    const sendMessage = (message: string) => {
+    useEffect(() => {
+        if (!answer) return;
+        setText('');
+        const tokens = answer.content.split(' ');
+        const interval = setInterval(() => {
+            if (tokens.length > 0) {
+                setText((prev) => prev + ' ' + tokens.shift());
+                bottomOfChatRef.current!.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 200);
+
+        return () => clearInterval(interval);
+    }, [answer]);
+
+    useEffect(() => {
+        if (chatId) {
+            fetch(ApiUrls.Chat.GetMessages(chatId))
+            .then(response => response.json())
+            .then(data => setMessages(data));
+        } else {
+            setMessages([]);
+        }
+    }, [chatId]);
+
+    useEffect(() => {
+        if (bottomOfChatRef.current) {
+            bottomOfChatRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
+
+    function sendMessage(message: string) {
         if (!message || message == '') return;
 
         const msg = { chatId: chatId, content: message, role: { label: 'user' }, timeStamp: new Date().toISOString() };
+        setMessage('');
         setMessages([...messages, msg]);
 
         fetch(ApiUrls.Chat.SendMessage(chatId), {
@@ -91,10 +63,11 @@ function Chat({ chatId }: ChatProps) {
             body: JSON.stringify({ content: message })
         })
         .then(response => response.json())
-        .then(data => {
-            setMessages([...messages, msg, data]);
-            setMessage('');
-        });
+        .then(data => 
+            {
+                setMessages([...messages, msg, data]);
+                setAnswer(data);
+            });
     }
 
     function handleKeyPress(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -113,38 +86,25 @@ function Chat({ chatId }: ChatProps) {
         return d.toLocaleString('de-DE', options);
     }
 
-    useEffect(() => {
-        if (chatId) {
-            fetch(ApiUrls.Chat.GetMessages(chatId))
-            .then(response => response.json())
-            .then(data => setMessages(data));
-        }
-    }, [chatId]);
-    useEffect(() => {
-        if (bottomOfChatRef.current) {
-            bottomOfChatRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [messages]);
-
     return (
         <Box className={classes.main}>
             <Box className={classes.chatHistory}>
                 {messages.map((message, index) => {
                     if (message.role.label !== 'system')
                         return (
-                            <>
+                            <Box key={index} className={classes.message}>
                                 <Box
-                                    key={index}
                                     className={message.role.label === 'assistant' ? classes.chatHistoryMessageAssistant : classes.chatHistoryMessageUser}>
-                                    {message.content}
+                                    {message.id && answer?.id && message.id === answer.id ? text : message.content}
                                 </Box>
-                                <div className={classes.chatHistoryMessageTime + ' ' + (message.role.label === 'assistant' ? classes.chatHistoryMessageTimeAssistant : classes.chatHistoryMessageTimeUser)}>
+                                <Box
+                                    className={classes.chatHistoryMessageTime + ' ' + (message.role.label === 'assistant' ? classes.chatHistoryMessageTimeAssistant : classes.chatHistoryMessageTimeUser)}>
                                     {convertDate(message.timeStamp)}
-                                </div>
-                            </>
+                                </Box>
+                            </Box>
                         )
                 })}
-                <div ref={bottomOfChatRef}></div>
+                <Box ref={bottomOfChatRef}/>
             </Box>
             <Box className={classes.chatInput}>
                 <TextField 

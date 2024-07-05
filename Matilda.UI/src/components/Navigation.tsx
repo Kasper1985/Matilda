@@ -1,65 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from 'tss-react/mui';
+import { navigationStyles } from './styles/Navigation.styles.ts';
 import { Box, Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton } from '@mui/material';
+import { ApiUrls } from '../../api/apiUrls';
+import { Chat } from '../../api/models';
 import ChatIcon from '@mui/icons-material/Chat';
 import DeleteIcon from '@mui/icons-material/Delete';
 import avatar from '../assets/avatar.jpg';
-import { ApiUrls } from '../../api/apiUrls';
-import { Chat } from '../../api/models';
-
-const useStyles = makeStyles()(() => ({
-    main: {
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-    },
-    avatarBox: {
-        backgroundColor: '#444',
-        borderRadius: '10px',
-        padding: '10px 0 10px 0',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        ' img': {
-            width: '120px',
-            height: '120px',
-            borderRadius: '50%',
-        }
-    },
-    chatList: {
-        backgroundColor: '#444',
-        borderRadius: '10px',
-        padding: '10px 0 10px 0',
-        overflowY: 'auto',
-        flexGrow: 1,
-        display: 'flex',
-        flexDirection: 'column'
-    },
-    chatListItem: {
-        '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.4)'
-        }
-    },
-}));
 
 interface NavigationProps {
     onSelectChat?: (id: string) => void;
 }
 
 function Navigation({ onSelectChat }: NavigationProps) {
-    const { classes } = useStyles();
+    const { classes } = navigationStyles();
 
     const [chats, setChats] = useState<Chat[]>([]);
     useEffect(() => LoadChats(), []);
 
-    const LoadChats = () => {
+    function LoadChats() {
         fetch(ApiUrls.Chat.GetAllChats)
         .then(response => response.json())
         .then(data => setChats(data))
     }
 
-    const CreateNewChat = (title: string) => {
+    function CreateNewChat(title: string) {
         fetch(ApiUrls.Chat.CreateChat(title), {
             method: 'POST',
             headers: {
@@ -71,6 +35,27 @@ function Navigation({ onSelectChat }: NavigationProps) {
         .then(data => {
             setChats([...chats, data]);
             onSelectChat && onSelectChat(data.id);
+        });
+    }
+
+    function DeleteChat(id: string) {
+        fetch(ApiUrls.Chat.DeleteChat(id), {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                alert("Failed to delete chat.");
+                console.error("Failed to delete chat with id: " + id);
+                return;
+            }
+
+            const newChats = chats.filter(chat => chat.id !== id);
+            setChats(newChats);
+            if (newChats.length > 0) {
+                onSelectChat && onSelectChat(newChats[0].id);
+            } else {
+                onSelectChat && onSelectChat('');
+            }
         });
     }
     
@@ -88,7 +73,7 @@ function Navigation({ onSelectChat }: NavigationProps) {
                         <ListItem 
                             key={chat.id}
                             secondaryAction={
-                                <IconButton edge="end" aria-label="delete">
+                                <IconButton edge="end" aria-label="delete" onClick={() => DeleteChat(chat.id)}>
                                     <DeleteIcon sx={{color: 'white'}}/>
                                 </IconButton>
                             }
