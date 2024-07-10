@@ -22,12 +22,12 @@ const createWindow = () => {
 
     // and load the app.
     if (isDev) {
-        mainWindow.removeMenu();
+        //mainWindow.removeMenu();
         mainWindow.loadURL('http://localhost:3000')
         mainWindow.webContents.openDevTools();
     }
     else {
-        //mainWindow.removeMenu();
+        mainWindow.removeMenu();
         mainWindow.loadFile('index.html')
     }
 }

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>de743aaa-9a1d-4591-9f0f-37a3e39fe7f3</UserSecretsId>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +14,14 @@
         <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.65.240620.1" />
         <PackageReference Include="Microsoft.SemanticKernel" Version="1.15.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\Matilda.WebApi.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\Matilda.WebApi.runtimeconfig.json" />
     </ItemGroup>
 
 </Project>

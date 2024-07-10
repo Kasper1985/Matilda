@@ -8,7 +8,7 @@
   "description": "Matilda - your personal AI assistant",
   "scripts": {
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "vite:dev": "vite serve --host localhost --port 3000",
+    "vite:dev": "vite serve",
     "vite:build": "tsc -b && vite build",
     "electron:dev": "cross-env IS_DEV=true electron .",
     "electron:build": "electron-builder --dir --config ./electron/electron-builder.yaml",
@@ -22,6 +22,7 @@
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
+    "microsoft-cognitiveservices-speech-sdk": "^1.38.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tss-react": "^4.9.10"

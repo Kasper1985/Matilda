@@ -1,4 +1,4 @@
-import config from './configuration';
+import { configuration } from '../configuration';
 
 export type ApiUrl = string;
 
@@ -19,6 +19,16 @@ function getApiChat(baseUrl: string) {
     };
 }
 
+function getSpeechService(baseUrl: string) {
+    const serviceName = '';
+    const servicePath = `${baseUrl}${serviceName ? '/' + serviceName : ''}`;
+
+    return {
+        GetTextToSpeech: (text: string) => `${servicePath}/Speech/TextToSpeech?text=${text}`,
+    }
+}
+
 export const ApiUrls = {
-    Chat: getApiChat(config.env.SERVICE_BASE_URL),
+    Chat: getApiChat(configuration.env.SERVICE_BASE_URL),
+    Speech: getSpeechService(configuration.env.SERVICE_BASE_URL),
 }

@@ -1,0 +1,38 @@
+name: matilda
+
+services:
+  matilda-api:
+    image: matilda-api
+    container_name: matilda.api
+    build:
+      context: .
+      dockerfile: .\Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Api_BasePath: /api
+    env_file:
+      - path: .\secrets.env
+        required: true
+    ports:
+      - 4711:8080
+    depends_on:
+      - matilda-db
+
+  matilda-db:
+    image: mongo
+    container_name: matilda.db
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: admin
+    volumes:
+      - dbdata:/data/db
+      - dbconfig:/data/configdb
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+volumes:
+  dbdata:
+  dbconfig:

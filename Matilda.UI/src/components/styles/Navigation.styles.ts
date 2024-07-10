@@ -20,18 +20,22 @@ export const navigationStyles: any = makeStyles()(() => ({
             borderRadius: '50%',
         }
     },
-    chatList: {
+    chatListContainer: {
         backgroundColor: '#444',
         borderRadius: '10px',
-        padding: '10px 0 10px 0',
-        overflowY: 'auto',
+        padding: '10px 0',
+        overflowY: 'hidden',
         flexGrow: 1,
         display: 'flex',
         flexDirection: 'column'
     },
-    chatListItem: {
-        '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.4)'
-        }
+    chatListButtons: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px',
+    },
+    chatList: {
+        marginRight: '5px',
+        overflowY: 'auto',
     }
 }));

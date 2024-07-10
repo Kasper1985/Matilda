@@ -1,4 +1,4 @@
-export interface Chat {
+export interface ChatHistory {
     id: string;
     title: string;
     timeStamp: string;
